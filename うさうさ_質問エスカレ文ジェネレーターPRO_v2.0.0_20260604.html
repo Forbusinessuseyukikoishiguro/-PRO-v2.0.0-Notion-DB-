@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="application-name" content="うさうさ質問エスカレ文ジェネレーターPRO">
+<meta name="version" content="2.0.0">
+<meta name="build-date" content="2026-06-04">
+<meta name="author" content="うさうさ研修工房">
+<title>🐰 質問エスカレ文ジェネレーターPRO v2.0.0 | うさうさ研修工房</title>
+<style>
+  :root{
+    --orange:#E8853D; --deep:#C9641F; --gold:#D9A441; --cream:#FFF6EA;
+    --ink:#4A3728; --brown:#8A6A50; --paper:#FFFDF8; --line:#F0DFC8;
+    --green:#5B8C5A; --red:#C0392B;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{
+    font-family:"Hiragino Maru Gothic ProN","Hiragino Kaku Gothic ProN","Yu Gothic",Meiryo,sans-serif;
+    background:linear-gradient(160deg,#FFF3E2 0%,#FFFDF8 45%,#FBF0DA 100%);
+    color:var(--ink); min-height:100vh; padding:24px 16px 60px;
+  }
+  .wrap{max-width:1060px; margin:0 auto;}
+  header{
+    background:var(--orange); border-radius:18px; padding:20px 26px; color:#fff;
+    display:flex; align-items:center; gap:14px; box-shadow:0 6px 18px rgba(201,100,31,.25);
+    position:relative; overflow:hidden;
+  }
+  header::after{content:"🐰"; position:absolute; right:18px; top:50%; transform:translateY(-50%);
+    font-size:54px; opacity:.9;}
+  header h1{font-size:1.3rem; letter-spacing:.04em;}
+  header p{font-size:.8rem; opacity:.92; margin-top:4px;}
+  .badge{background:var(--deep); border-radius:999px; padding:3px 12px; font-size:.72rem; font-weight:bold;}
+  main{display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:18px; margin-top:18px;}
+  @media(max-width:860px){ main{grid-template-columns:1fr;} }
+  .card{
+    background:var(--paper); border:1.5px solid var(--line); border-radius:16px;
+    padding:20px; box-shadow:0 4px 14px rgba(74,55,40,.07);
+  }
+  .card h2{font-size:1rem; color:var(--deep); margin-bottom:14px; display:flex; align-items:center; gap:8px;}
+  label{display:block; font-size:.78rem; font-weight:bold; color:var(--brown); margin:10px 0 4px;}
+  label .req{color:var(--red); font-size:.7rem;}
+  input,select,textarea{
+    width:100%; border:1.5px solid var(--line); border-radius:10px; padding:8px 10px;
+    font-size:.9rem; font-family:inherit; background:#fff; color:var(--ink);
+  }
+  input:focus,select:focus,textarea:focus{outline:none; border-color:var(--orange);}
+  input.warn,textarea.warn{border-color:var(--red); background:#FFF7F6;}
+  textarea{resize:vertical;}
+  .row{display:grid; grid-template-columns:1fr 1fr; gap:10px;}
+  .row3{display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px;}
+  .btn{
+    border:none; border-radius:999px; padding:10px 20px; font-size:.88rem; font-weight:bold;
+    font-family:inherit; cursor:pointer; transition:transform .12s, box-shadow .12s;
+  }
+  .btn:hover{transform:translateY(-1px); box-shadow:0 4px 10px rgba(74,55,40,.18);}
+  .btn:active{transform:translateY(0);}
+  .btn:disabled{opacity:.5; cursor:not-allowed; transform:none; box-shadow:none;}
+  .btn-main{background:var(--orange); color:#fff; width:100%; margin-top:16px; font-size:.95rem;}
+  .btn-ghost{background:#fff; color:var(--deep); border:1.5px solid var(--orange);}
+  .btn-gold{background:var(--gold); color:#fff;}
+  .btn-notion{background:var(--ink); color:#fff;}
+  .btn-sm{padding:5px 12px; font-size:.75rem;}
+  .toolbar{display:flex; gap:8px; flex-wrap:wrap; margin-bottom:12px; align-items:center;}
+  .count{font-size:.75rem; color:var(--brown); margin-left:auto;}
+  #output{
+    width:100%; min-height:240px; background:var(--cream); border:1.5px dashed var(--gold);
+    border-radius:12px; padding:14px; font-size:.85rem; line-height:1.7; white-space:pre-wrap;
+    font-family:inherit;
+  }
+  .entry{
+    background:#fff; border:1.5px solid var(--line); border-left:5px solid var(--orange);
+    border-radius:10px; padding:10px 12px; margin-bottom:8px; font-size:.78rem;
+    display:flex; justify-content:space-between; align-items:center; gap:8px;
+  }
+  .entry.saved{border-left-color:var(--green);}
+  .entry .meta{flex:1; min-width:0;}
+  .entry .meta b{color:var(--deep);}
+  .entry .meta span{color:var(--brown); display:block; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .entry .acts{display:flex; gap:6px; flex-shrink:0;}
+  .pill{font-size:.68rem; border-radius:999px; padding:2px 8px; background:var(--cream); color:var(--deep); border:1px solid var(--gold);}
+  .pill.ok{background:#EAF3EA; color:var(--green); border-color:var(--green);}
+  #status{margin-top:10px; font-size:.8rem; padding:10px 12px; border-radius:10px; display:none;}
+  #status.ok{display:block; background:#EAF3EA; color:var(--green); border:1.5px solid var(--green);}
+  #status.ng{display:block; background:#FDECEA; color:var(--red); border:1.5px solid var(--red);}
+  #status.busy{display:block; background:var(--cream); color:var(--brown); border:1.5px solid var(--gold);}
+  .note{font-size:.72rem; color:var(--brown); margin-top:10px; line-height:1.6;}
+  footer{text-align:center; font-size:.72rem; color:var(--brown); margin-top:28px; line-height:1.8;}
+  footer .stamp{display:inline-block; background:var(--paper); border:1.5px solid var(--gold);
+    border-radius:999px; padding:4px 16px; font-weight:bold; color:var(--deep);}
+  .spin{display:inline-block; animation:hop .8s infinite alternate;}
+  @keyframes hop{from{transform:translateY(0);} to{transform:translateY(-4px);}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <h1>質問エスカレ文ジェネレーター<span style="color:#FFE3C2">PRO</span> <span class="badge">v2.0.0 🥕 Notion連携</span></h1>
+      <p>メイン講師への「演習の進め方ご相談」定型文を作成 → 質問ダッシュボードDBへ自動起票</p>
+    </div>
+  </header>
+
+  <main>
+    <!-- ===== 入力フォーム ===== -->
+    <section class="card">
+      <h2>📝 入力フォーム <span style="font-size:.7rem;color:var(--brown);font-weight:normal">（Ctrl+Enterで追加）</span></h2>
+      <div class="row3">
+        <div><label>日付</label><input type="date" id="f-date"></div>
+        <div><label>時間</label><input type="time" id="f-time"></div>
+        <div><label>グループ / クラス <span class="req">*</span></label><input type="text" id="f-group" placeholder="例: Aグループ"></div>
+      </div>
+      <label>タイトル（研修名・演習名） <span class="req">*</span></label>
+      <input type="text" id="f-title" placeholder="例: セキュリティ応用研修 演習2-1">
+      <div class="row">
+        <div><label>ご相談いただいた方（受講生） <span class="req">*</span></label><input type="text" id="f-who" placeholder="例: 山田"></div>
+        <div><label>該当ページ</label><input type="text" id="f-page" placeholder="例: P30" value="P30"></div>
+      </div>
+      <label>該当箇所・ご相談内容 <span class="req">*</span></label>
+      <textarea id="f-body" rows="3" placeholder="例: 演習2-1「必要になるサーバの書き出し」で、プロキシサーバを含めるべきか判断に迷うとのこと"></textarea>
+      <div class="row3">
+        <div>
+          <label>カテゴリ（Notion用）</label>
+          <select id="f-cat">
+            <option>インフラ一般</option><option>Linux/LPIC</option><option>Python/Django</option>
+            <option>Tableau</option><option>Splunk</option><option>生成AI</option>
+            <option>ServiceNow</option><option selected>その他</option>
+          </select>
+        </div>
+        <div>
+          <label>緊急度（Notion用）</label>
+          <select id="f-urgency"><option>🔴高</option><option selected>🟡中</option><option>🟢低</option></select>
+        </div>
+        <div><label>起票サブ講師</label><input type="text" id="f-sub" value="石黒"></div>
+      </div>
+      <button class="btn btn-main" id="btn-add" onclick="addEntry()">➕ この相談を追加する</button>
+    </section>
+
+    <!-- ===== 出力 ===== -->
+    <section class="card">
+      <h2>📤 生成結果（メイン講師送付用）</h2>
+      <div class="toolbar">
+        <button class="btn btn-ghost btn-sm" onclick="copyAll()">📋 全文コピー</button>
+        <button class="btn btn-gold btn-sm" onclick="clearAll()">🗑️ 全クリア</button>
+        <button class="btn btn-notion btn-sm" id="btn-notion" onclick="saveAllToNotion()">💾 Notionへ一括起票</button>
+        <span class="count" id="counter">0件</span>
+      </div>
+      <div id="entries"></div>
+      <textarea id="output" readonly placeholder="まだ相談が追加されていません。左のフォームから追加してください🐰"></textarea>
+      <div id="status" role="status" aria-live="polite"></div>
+      <p class="note">
+        💡 Notion起票先: <b>❓質問ダッシュボードDB</b>（回答者=メイン講師 / ステータス=未着手 で自動登録）<br>
+        ⚠️ Notion保存はClaude.aiのアーティファクト内で開いた場合のみ動作します（ローカル保存版では文面生成・コピーのみ）。<br>
+        ⚠️ 入力データはページを閉じると消えます。コピー or Notion起票をお忘れなく。
+      </p>
+    </section>
+  </main>
+  <footer>
+    <span class="stamp">🐰 うさうさ質問エスカレ文ジェネレーターPRO v2.0.0 | Build 2026-06-04</span><br>
+    うさうさ研修工房 |「面白きこともなき世を面白く」
+  </footer>
+</div>
+
+<script>
+"use strict";
+/* ============================================================
+ * うさうさ質問エスカレ文ジェネレーターPRO
+ * Version : 2.0.0  (Build 2026-06-04)
+ * Author  : うさうさ研修工房 🐰
+ * Changes : v2.0.0 - XSS対策(全入力エスケープ) / 必須項目バリデーション /
+ *           個別コピー・個別Notion起票 / エントリ編集 / Ctrl+Enter追加 /
+ *           起票サブ講師の可変化 / 起票中の多重実行ガード / 刻印
+ *           v1.0.0 - 初版（定型文生成・一括コピー・Notion一括起票）
+ * ============================================================ */
+console.log("%c🐰 うさうさ質問エスカレ文ジェネレーターPRO v2.0.0 (Build 2026-06-04)","color:#E8853D;font-weight:bold");
+
+const APP_VERSION = "2.0.0";
+const DATA_SOURCE_ID = "a2701198-48e4-4acf-99c4-97125090b34a"; // ❓質問ダッシュボードDB
+let entries = [];
+let notionBusy = false;
+
+// ---------- utilities ----------
+function escapeHtml(s){
+  return String(s).replace(/[&<>"']/g, c =>
+    ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+}
+function fmtDateJp(iso){
+  if(!iso || !/^\d{4}-\d{2}-\d{2}$/.test(iso)) return "";
+  const [y,m,d] = iso.split("-");
+  return `${y}年${Number(m)}月${Number(d)}日`;
+}
+function buildText(e){
+  return `${fmtDateJp(e.date)} ${e.time}
+グループ：${e.group}
+タイトル：${e.title}
+演習の進め方について、${e.who}さんよりご相談をいただきました。
+${e.page}の${e.body}
+お手数ですが、当該箇所の正しい解答・内容をご教示いただけますでしょうか。`;
+}
+
+// ---------- init ----------
+(function init(){
+  const now = new Date();
+  const pad = n => String(n).padStart(2,"0");
+  document.getElementById("f-date").value =
+    `${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}`;
+  document.getElementById("f-time").value = `${pad(now.getHours())}:${pad(now.getMinutes())}`;
+  document.addEventListener("keydown", ev=>{
+    if((ev.ctrlKey||ev.metaKey) && ev.key==="Enter") addEntry();
+  });
+})();
+
+// ---------- validation ----------
+function validate(){
+  const required = ["f-group","f-title","f-who","f-body"];
+  let ok = true;
+  required.forEach(id=>{
+    const el = document.getElementById(id);
+    const bad = !el.value.trim();
+    el.classList.toggle("warn", bad);
+    if(bad) ok = false;
+  });
+  return ok;
+}
+
+// ---------- CRUD ----------
+function addEntry(){
+  if(!validate()){ flash("ng","赤枠の必須項目（*）を入力してください"); return; }
+  entries.push({
+    date: document.getElementById("f-date").value,
+    time: document.getElementById("f-time").value,
+    group: document.getElementById("f-group").value.trim(),
+    title: document.getElementById("f-title").value.trim(),
+    who: document.getElementById("f-who").value.trim(),
+    page: document.getElementById("f-page").value.trim() || "P--",
+    body: document.getElementById("f-body").value.trim(),
+    cat: document.getElementById("f-cat").value,
+    urgency: document.getElementById("f-urgency").value,
+    sub: document.getElementById("f-sub").value.trim() || "石黒",
+    saved: false
+  });
+  document.getElementById("f-body").value = "";
+  document.getElementById("f-who").value = "";
+  render();
+  flash("ok","➕ 追加しました（合計 " + entries.length + " 件）");
+}
+function removeEntry(i){ entries.splice(i,1); render(); }
+function editEntry(i){
+  const e = entries[i];
+  if(!confirm("この相談をフォームに戻して編集します（リストからは一旦削除）。よろしいですか？")) return;
+  document.getElementById("f-date").value = e.date;
+  document.getElementById("f-time").value = e.time;
+  document.getElementById("f-group").value = e.group;
+  document.getElementById("f-title").value = e.title;
+  document.getElementById("f-who").value = e.who;
+  document.getElementById("f-page").value = e.page;
+  document.getElementById("f-body").value = e.body;
+  document.getElementById("f-cat").value = e.cat;
+  document.getElementById("f-urgency").value = e.urgency;
+  document.getElementById("f-sub").value = e.sub;
+  entries.splice(i,1); render();
+}
+
+// ---------- render (escaped) ----------
+function render(){
+  const list = document.getElementById("entries");
+  list.innerHTML = entries.map((e,i)=>`
+    <div class="entry${e.saved?" saved":""}">
+      <div class="meta">
+        <b>${escapeHtml(e.page)}</b> ${escapeHtml(e.who)}さん
+        <span>${escapeHtml(e.title)}（${escapeHtml(e.group)}）</span>
+      </div>
+      <div class="acts">
+        <span class="pill${e.saved?" ok":""}">${e.saved ? "✅ Notion済" : escapeHtml(e.urgency)}</span>
+        <button class="btn btn-ghost btn-sm" onclick="copyOne(${i})" title="この1件をコピー">📋</button>
+        <button class="btn btn-ghost btn-sm" onclick="editEntry(${i})" title="編集">✏️</button>
+        <button class="btn btn-ghost btn-sm" onclick="removeEntry(${i})" title="削除">✕</button>
+      </div>
+    </div>`).join("");
+  document.getElementById("output").value = entries.map(buildText).join("\nーーー\n");
+  document.getElementById("counter").textContent =
+    entries.length + "件（未起票 " + entries.filter(e=>!e.saved).length + "件）";
+}
+
+// ---------- copy ----------
+function doCopy(text, okMsg){
+  if(!text){ flash("ng","コピーする内容がありません"); return; }
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(text).then(()=>flash("ok",okMsg))
+      .catch(()=>fallbackCopy(text, okMsg));
+  } else { fallbackCopy(text, okMsg); }
+}
+function fallbackCopy(text, okMsg){
+  const ta = document.createElement("textarea");
+  ta.value = text; document.body.appendChild(ta); ta.select();
+  try{ document.execCommand("copy"); flash("ok", okMsg); }
+  catch(_){ flash("ng","コピーに失敗しました。出力欄から手動でコピーしてください"); }
+  document.body.removeChild(ta);
+}
+function copyAll(){ doCopy(document.getElementById("output").value, "📋 全文をコピーしました！"); }
+function copyOne(i){ doCopy(buildText(entries[i]), "📋 1件コピーしました！"); }
+
+function clearAll(){
+  if(entries.length && !confirm("すべての相談を削除します。よろしいですか？")) return;
+  entries = []; render(); flash("ok","クリアしました");
+}
+
+// ---------- status ----------
+let flashTimer = null;
+function flash(kind,msg){
+  const s = document.getElementById("status");
+  s.className = kind; s.innerHTML = msg; s.style.display = "block";
+  clearTimeout(flashTimer);
+  if(kind!=="busy") flashTimer = setTimeout(()=>{ s.className=""; s.style.display="none"; }, 4500);
+}
+
+// ---------- Notion一括起票（Claude API + Notion MCP）----------
+function toPageSpec(e){
+  return {
+    "質問要約": `【${e.title}】${e.page} 演習の進め方相談（${e.who}さん）`,
+    "質問内容": `${e.page}の${e.body}\n→ メイン講師へ正しい解答・内容を確認依頼`,
+    "質問者（受講生）": e.who,
+    "クラス": e.group,
+    "カテゴリ": e.cat,
+    "緊急度": e.urgency,
+    "回答者": "メイン講師",
+    "回答ステータス": "未着手",
+    "起票サブ講師": e.sub,
+    "date:発生日時:start": `${e.date}T${e.time}:00`,
+    "date:発生日時:is_datetime": 1
+  };
+}
+async function saveAllToNotion(){
+  if(notionBusy){ flash("busy",'<span class="spin">🐰</span> 起票処理中です。少々お待ちください…'); return; }
+  const targets = entries.filter(e=>!e.saved);
+  if(!targets.length){ flash("ng","未起票の相談がありません"); return; }
+  notionBusy = true;
+  document.getElementById("btn-notion").disabled = true;
+  flash("busy",'<span class="spin">🐰</span> Notionに起票中…（'+targets.length+'件）');
+
+  const pagesSpec = targets.map(toPageSpec);
+  const prompt = `Notionのnotion-create-pagesツールを使って、以下のページを作成してください。
+parent は {"data_source_id": "${DATA_SOURCE_ID}"} を必ず指定してください。
+各ページのpropertiesは以下のJSON配列の各要素をそのまま使ってください（キー名・値を変更しないこと）:
+${JSON.stringify(pagesSpec, null, 2)}
+作成が完了したら、JSON {"ok": true, "count": 作成件数} のみを返してください。失敗した場合は {"ok": false, "error": "理由"} のみを返してください。Markdownの装飾や前置きは不要です。`;
+
+  try{
+    const res = await fetch("https://api.anthropic.com/v1/messages", {
+      method:"POST",
+      headers:{ "Content-Type":"application/json" },
+      body: JSON.stringify({
+        model:"claude-sonnet-4-20250514",
+        max_tokens:1000,
+        messages:[{ role:"user", content: prompt }],
+        mcp_servers:[{ type:"url", url:"https://mcp.notion.com/mcp", name:"notion-mcp" }]
+      })
+    });
+    if(!res.ok) throw new Error("HTTP " + res.status);
+    const data = await res.json();
+    const text = (data.content||[]).filter(b=>b.type==="text").map(b=>b.text).join("\n");
+    const clean = text.replace(/```json|```/g,"").trim();
+    let parsed = null;
+    try{ parsed = JSON.parse(clean); }catch(_){}
+    if(parsed && parsed.ok){
+      targets.forEach(e=>e.saved=true); render();
+      flash("ok",`✅ Notionに ${parsed.count ?? targets.length} 件起票しました！（質問ダッシュボードDB）`);
+    } else if (parsed && parsed.ok===false){
+      flash("ng","❌ 起票に失敗: " + escapeHtml(parsed.error||"不明なエラー"));
+    } else {
+      const toolResults = (data.content||[]).filter(b=>b.type==="mcp_tool_result").length;
+      if(toolResults>0){
+        targets.forEach(e=>e.saved=true); render();
+        flash("ok","✅ Notion起票を実行しました（DBをご確認ください）");
+      } else {
+        flash("ng","❌ 起票できませんでした。Claude.ai内で開いているか・Notion連携が有効かご確認ください");
+      }
+    }
+  }catch(err){
+    flash("ng","❌ 通信エラー: " + escapeHtml(err.message) + "（ローカル版では文面生成のみ利用できます）");
+  }finally{
+    notionBusy = false;
+    document.getElementById("btn-notion").disabled = false;
+  }
+}
+</script>
+</body>
+</html>
